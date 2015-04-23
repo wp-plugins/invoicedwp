@@ -77,12 +77,6 @@
                             <td class="total" style="text-align: right;"><?php echo $iwp_currency . ' ' . iwp_format_amount( $invoiceContent['invoice_totals']['discount'] ); ?></td>
                         </tr>
                         <?php } ?>
-                        <?php if( $invoiceContent['invoice_totals']["payments"] > 0 ) { ?>
-                        <tr>
-                            <td style="text-align: right;" colspan="3"><?php _e( 'Payments', 'iwp-txt' ); ?></td>
-                            <td class="total" style="text-align: right;"><?php echo $iwp_currency . ' ' . iwp_format_amount( $invoiceContent['invoice_totals']['payments'] ); ?></td>
-                        </tr>
-                        <?php } ?>
                         <tr>
                             <td style="text-align: right;" colspan="3" class="grand_total"><?php _e( 'Total', 'iwp-txt' ); ?></td>
                             <td class="grand_total" style="text-align: right;"><?php echo $iwp_currency . ' ' . iwp_format_amount( $invoiceContent['invoice_totals']['total'] ); ?></td>
