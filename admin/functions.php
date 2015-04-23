@@ -83,7 +83,7 @@ function save_myInvoiceSettings($post_id) {
     if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE ) 
         return;
 
-    if ( ('invoicedwp' == iwp_sanitize( $_POST['post_type'] ) || 'invoicedwp_template' == iwp_sanitize( $_POST['post_type'] ) ) && !current_user_can( 'edit_post', $post_id ) )
+    if ( ! ('invoicedwp' == $_POST['post_type'] ) || ! ( 'invoicedwp_template' == $_POST['post_type'] ) && ! current_user_can( 'edit_post', $post_id ) )
         return;
 
     if ( ! wp_verify_nonce( $_POST['iwp_extra_nonce'], 'iwp_extra_nonce' ) )
@@ -168,11 +168,9 @@ function save_myInvoiceSettings($post_id) {
           
     }
 
-    if( isset( $iwp["iwp_invoice_payment"]["amount"] ) ) {
-        foreach ($iwp["iwp_invoice_payment"]["amount"] as $key => $value)
-            $payment += $value;  
-    }
-
+    foreach ($iwp["iwp_invoice_payment"]["amount"] as $key => $value)
+        $payment += $value;  
+    
     $iwp['invoice_totals']["payments"]  = $payment;
 
     update_post_meta( $post_id, '_invoicedwp', $iwp ); // Saves if the invoice is only a quote
