@@ -17,24 +17,24 @@ function myInvoiceSettings() {
     wp_nonce_field('iwp_extra_nonce', 'iwp_extra_nonce' );
 
     if ( ( get_post_type($post) == 'invoicedwp' ) || ( get_post_type($post) == 'invoicedwp_template' ) ) {
-    	$custom = get_post_custom();
-    	
+        $custom = get_post_custom();
+        
         $iwp = array( 'isQuote' => 0, 'reoccuringPayment' => 0, 'minPayment' => 0, 'minPaymentText' => '' );
 
-    	if( ! empty($custom['_invoicedwp']) ){
-			$newiwp = maybe_unserialize( $custom['_invoicedwp'][0] );
+        if( ! empty($custom['_invoicedwp']) ){
+            $newiwp = maybe_unserialize( $custom['_invoicedwp'][0] );
             $iwp = array_merge( $iwp, $newiwp );
-    	}
+        }
 
         if ( get_post_type($post) == 'invoicedwp') {
 
-        	$display = '<input type="checkbox" name="isQuote" id="isQuote" value="' . $iwp['isQuote'] . '" ' . checked( $iwp['isQuote'], 1, false ) .' /> <label for="isQuote" class="">Quote</label><br />';
+            $display = '<input type="checkbox" name="isQuote" id="isQuote" value="' . $iwp['isQuote'] . '" ' . checked( $iwp['isQuote'], 1, false ) .' /> <label for="isQuote" class="">Quote</label><br />';
 
-    		$display .= '<input style="display: none;" type="checkbox" name="reoccuringPayment" id="reoccuringPayment" value="' . $iwp['reoccuringPayment'] . '" ' . checked( $iwp['reoccuringPayment'], 1, false ) .' /> <label for="reoccuringPayment" class="" style="display: none;">' . __( 'Reoccuring Bill', 'iwp-txt') . '</label>';
+            $display .= '<input style="display: none;" type="checkbox" name="reoccuringPayment" id="reoccuringPayment" value="' . $iwp['reoccuringPayment'] . '" ' . checked( $iwp['reoccuringPayment'], 1, false ) .' /> <label for="reoccuringPayment" class="" style="display: none;">' . __( 'Reoccuring Bill', 'iwp-txt') . '</label>';
             $reoccuringPaymentText = isset( $iwp['reoccuringPaymentText'] ) ? $iwp['reoccuringPaymentText'] : '';
             $display .= '<input type="text" name="reoccuringPaymentText" id="reoccuringPaymentText" value="' . $reoccuringPaymentText . '" placeholder="' . __( 'Number of Days to Next Payment', 'iwp-txt') . '"  style="width: 100%; display: none;" /><br />'; // Need to add jQuery to update the place holder to be the invoice total.
-            // Need to add jQuery to update this section to slide open when the box is checked.    	
-        	
+            // Need to add jQuery to update this section to slide open when the box is checked.     
+            
             $minPayment = 0;
             $displayMinPayment = 'display: none;';
             if( isset( $iwp['minPayment'] ) ) {
@@ -47,8 +47,8 @@ function myInvoiceSettings() {
 
             $display .= '<input type="checkbox" name="minPayment" id="minPayment" value="' . $minPayment . '" ' . checked( $minPayment, 1, false ) .' /> <label for="minPayment" class="">' . __( 'Minimum Payment', 'iwp-txt') . '</label>';    
             $minPaymentText = isset( $iwp['minPaymentText'] ) ? $iwp['minPaymentText'] : '';
-        	$display .= '<input type="text" name="minPaymentText" id="minPaymentText" value="' . $minPaymentText . '" placeholder="' . __( 'Minimum Payment', 'iwp-txt') . '"  style="width: 100%; ' . $displayMinPayment . '" /><br />'; // Need to add jQuery to update the place holder to be the invoice total.
-        	
+            $display .= '<input type="text" name="minPaymentText" id="minPaymentText" value="' . $minPaymentText . '" placeholder="' . __( 'Minimum Payment', 'iwp-txt') . '"  style="width: 100%; ' . $displayMinPayment . '" /><br />'; // Need to add jQuery to update the place holder to be the invoice total.
+            
             $paymentDueDate = '';
             $displayDueDate = 'display: none;';
             if( isset( $iwp['paymentDueDate'] ) ) {
@@ -64,7 +64,7 @@ function myInvoiceSettings() {
             $display .= '<input type="text" name="paymentDueDateText" id="dueDateText" value="' . $paymentDueDateText . '" placeholder="' . __( 'Due Date', 'iwp-txt') . '"  style="width: 100%; ' . $displayDueDate . ' " class="iwp-date-picker" /><br />'; // Need to add jQuery to update the place holder to be the invoice total.
 
             echo '<div class="misc-pub-section misc-pub-section-last" style="border-top: 1px solid #eee;">';
-        	echo apply_filters( 'iwp_extra_options', $display );
+            echo apply_filters( 'iwp_extra_options', $display );
             echo '</div>';
 
 
@@ -76,7 +76,7 @@ add_action( 'post_submitbox_misc_actions', 'myInvoiceSettings' );
 
 
 function save_myInvoiceSettings($post_id) {
-	
+    
     if (!isset( $_POST['post_type'] ) )
         return;
 
@@ -95,7 +95,7 @@ function save_myInvoiceSettings($post_id) {
         if (isset( $_POST['isQuote'] ) ) {
             $iwp['isQuote'] = 1;
         } else {
-        	$iwp['isQuote'] = 0;
+            $iwp['isQuote'] = 0;
         }
 
         if (isset( $_POST['makeAccount'] ) ) {
@@ -168,9 +168,11 @@ function save_myInvoiceSettings($post_id) {
           
     }
 
-    foreach ($iwp["iwp_invoice_payment"]["amount"] as $key => $value)
-        $payment += $value;  
-    
+    if( isset( $iwp["iwp_invoice_payment"]["amount"] ) ) {
+        foreach ($iwp["iwp_invoice_payment"]["amount"] as $key => $value)
+            $payment += $value;  
+    }
+
     $iwp['invoice_totals']["payments"]  = $payment;
 
     update_post_meta( $post_id, '_invoicedwp', $iwp ); // Saves if the invoice is only a quote
@@ -238,10 +240,10 @@ function iwp_sanitize( $items ) {
 function iwp_get_roles() {
     global $wp_roles;
 
-	$list = array();
+    $list = array();
     $all_roles = $wp_roles->roles;
-	foreach($all_roles as $role)
-		$list[] = $role["name"];
+    foreach($all_roles as $role)
+        $list[] = $role["name"];
 
     return apply_filters('iwp_get_roles', $list);
 }
