@@ -248,4 +248,26 @@ function iwp_get_roles() {
 
 
 
+/**
+ * Include admin files conditionally
+ */
+function iwp_conditonal_includes() {
+
+    $screen = get_current_screen();
+
+    switch ( $screen->id ) {
+        case 'dashboard' :
+            //include( 'class-wc-admin-dashboard.php' );
+        break;
+        case 'options-permalink' :
+            include( 'permalink-settings.php' );
+        break;
+        case 'users' :
+        case 'user' :
+        case 'profile' :
+        case 'user-edit' :
+            //include( 'class-wc-admin-profile.php' );
+        break;
+    }
+}
 

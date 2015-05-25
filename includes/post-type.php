@@ -14,6 +14,9 @@
  * @return [type] [description]
  */
 function iwp_setup_init() {
+	$permalinks = get_option( 'invoicedwp_permalinks' );
+	$invoice_permalink = empty( $permalinks['invoicedwp_slug'] ) ? _x( 'invoiced', 'slug' ) : $permalinks['invoicedwp_slug'];
+
 	$labels = array(
 		'name' 					=> _x('Invoices', 'post type general name', 'iwp-txt' ),
 		'singular_name' 		=> _x('Invoice', 'post type singular name', 'iwp-txt' ),
@@ -24,32 +27,36 @@ function iwp_setup_init() {
 		'view_item' 			=> __('View Invoice', 'iwp-txt' ),
 		'search_items' 			=> __('Search Invoices', 'iwp-txt' ),
 		'exclude_from_search' 	=> true,
-		'not_found' 			=>  __('No invoices found', 'iwp-txt' ),
+		'not_found' 			=> __('No invoices found', 'iwp-txt' ),
 		'not_found_in_trash' 	=> __('No invoices found in Trash', 'iwp-txt' ),
 		'parent_item_colon' 	=> '',
 		'all_items' 			=> 'Invoiced WP',
 		'menu_name' 			=> 'Invoiced WP'
+
 	);
 
 	$args = array(
+		'description'         	=> __( 'This is where you can add invoices to your site.', 'iwp-txt' ),
 		'labels' 				=> $labels,
 		'public' 				=> true,
-		'publicly_queryable' 	=> true,
 		'show_ui' 				=> true,
-		'show_in_menu' 			=> true,
-		'query_var' 			=> true,
-		'rewrite' 				=> true,
 		'capability_type' 		=> 'page',
-		'has_archive' 			=> false,
+		'map_meta_cap'        	=> true,
+		'publicly_queryable' 	=> true,
+		'exclude_from_search' 	=> false,
+		'show_in_menu' 			=> true,
+		'show_in_nav_menus'   	=> true,
 		'hierarchical' 			=> false,
-		'menu_icon'				=> 'dashicons-media-text',//IWP_URL . '/assets/img/invoice.png',
-		'menu_position' 		=> 20,
-		'rewrite' 				=> array('slug'=>'invoiced','with_front'=>false),
+		'rewrite'             	=> $invoice_permalink ? array( 'slug' => untrailingslashit( $invoice_permalink ), 'with_front' => false, 'feeds' => true ) : false,
+		'query_var' 			=> true,
+		'has_archive' 			=> true,
+		'menu_icon'				=> 'dashicons-media-text',
+		'menu_position' 		=> 20,				
 		'supports' 				=> array( 'title', 'editor' )
+
 	);
 
 	register_post_type( 'invoicedwp', $args );
-
 
 	$show_in_menu = 'invoicedwp';
 
@@ -68,6 +75,7 @@ function iwp_setup_init() {
 		'not_found'    			=> __( 'No Templatess found', 'iwp-txt' ),
 		'not_found_in_trash'	=> __( 'No Templatess found in trash', 'iwp-txt' ),
 		'parent'     			=> __( 'Parent Templates', 'iwp-txt' )
+
 	);
 
 
@@ -84,13 +92,10 @@ function iwp_setup_init() {
 		'show_in_menu' 	 		=> 'edit.php?post_type=invoicedwp',
 		'hierarchical' 			=> false,
 		'supports'   			=> array( 'title', 'comments' )
+
 	);
 
 	register_post_type( 'invoicedWP_template', $args );
-
-
-
-
 
 
 	register_post_status( 'quote', array(
@@ -117,6 +122,7 @@ function iwp_setup_init() {
 		'show_in_admin_status_list' => true,
 		'label_count'               => _n_noop( 'Paid <span class="count">(%s)</span>', 'Paid <span class="count">(%s)</span>', 'iwp-txt' )
 	) );
+
 }
 
 /**
@@ -136,7 +142,9 @@ function iwp_custom_columns( $cols ) {
 		'date'			=> __( 'Creation Date', 'iwp-txt' ),
 
 	);
+
 	return $cols;
+
 }
 
 /**
@@ -154,14 +162,14 @@ function iwp_display_custom_columns( $column ) {
 	//$iwp_columns = unserialize( $custom['_invoicedwp'][0] );
 
 	//$_staff_title 	= $iwp_columns[""];
-	
+
 	switch ( $column ) {
 		case "paid":
 			$payments 	= isset( $iwp['invoice_totals']["payments"] ) ? $iwp['invoice_totals']["payments"] : '0';
 			$total 		= isset( $iwp['invoice_totals']["total"] ) ? $iwp['invoice_totals']["total"] : '0';
 			if ( $curencyPos == "before" ) {
 				echo iwp_currency_symbol() . iwp_format_amount( $payments ) . ' / ' . iwp_currency_symbol() . iwp_format_amount( $total );
-				
+
 			} else {
 				echo iwp_format_amount( $payments ) . iwp_currency_symbol() . ' / ' . iwp_format_amount( $total ) . iwp_currency_symbol();
 			}
@@ -181,7 +189,7 @@ function iwp_display_custom_columns( $column ) {
 		break;
 		case "dueDate":
 			$dueDate = isset( $iwp["paymentDueDate"] ) ? $iwp["paymentDueDate"] : '-';
-			
+
 			if( $dueDate == 0 ) {
 				echo "-";
 			} else {
@@ -191,8 +199,6 @@ function iwp_display_custom_columns( $column ) {
 
 	}
 }
-
-
 
 
 function include_invoice_template_function( $template_path ) {

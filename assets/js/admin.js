@@ -12,9 +12,9 @@ jQuery(document).ready(function( $ ) {
 
 	$( document ).on( 'click', '.add_row', function( e ) {
 		e.preventDefault();
- 		
- 		var rowNumber = $('#invoicedDisplay tbody tr').length;
- 	
+
+ 		var rowNumber = $('#invoicedDisplay #invoiced_rows tr').length;
+
 		lastTR = $( '#invoicedDisplay tbody#invoiced_rows' ).find("tr:last"),
 		trNew = lastTR.clone()
 					  .find("input, textarea").val("").end();
@@ -33,15 +33,12 @@ jQuery(document).ready(function( $ ) {
 		$( '#invoicedDisplay tbody tr:last').find('.input_price').attr('id', priceId ).attr('name', priceId );
 		$( '#invoicedDisplay tbody tr:last').find('.input_total').attr('id', totalId ).attr('name', totalId );
 
-		//calculateTotal();
+		$( '#invoicedDisplay tbody tr:last').find('.input_description').hide();
+		$( '#invoicedDisplay tbody tr:last').find('.toggleDescription').show();
     });
 
-	//price change
-	//$( 'body' ).on('change keyup blur', '.changesNo', function( ){
-		//calculateTotal();
-	//});
 
-	$( 'body' ).on( 'change', '.selectTemplate', function( e ) {						 		
+	$( 'body' ).on( 'change', '.selectTemplate', function( e ) {
  		var template = $(this).val();
  		var rowNumber = $('#invoicedDisplay tbody tr').length;
 
@@ -60,7 +57,7 @@ jQuery(document).ready(function( $ ) {
 
 	$( 'body' ).on( 'change keyup blur', '#discountType, #discountAmount', function( e ) {
  		var discountType 	= $( '#discountType' ).val();
- 		
+
  		if( discountType == "percent" ){
  			$( ".percentSymbol").show();
  			$( ".currencySymbol").hide();
@@ -101,7 +98,7 @@ jQuery(document).ready(function( $ ) {
 
 	// The toggle Description button is clicked
 	$('body').on('click', '.toggleDescription', function(){
-		$(this).closest('td').find('.iwp_invoice_description').show();
+		$(this).closest('td').find('.input_description').show();
 		$(this).hide();
 		return false;
 	});
@@ -178,7 +175,7 @@ jQuery(document).ready(function( $ ) {
 
 		var subTotal 		= $( '.calculate_invoice_subtotal' ).val();
 		var taxAmount		= 0;
-		var discountAmount 	= $( '#discountAmount' ).val();					 		
+		var discountAmount 	= $( '#discountAmount' ).val();
  		var discountType 	= $( '#discountType' ).val();
  		var totalDiscount	= 0;
 
@@ -187,7 +184,7 @@ jQuery(document).ready(function( $ ) {
 		}
 
  		if( discountType == "percent" ){
- 			var totalSubtotal = parseFloat( subTotal ) + parseFloat( taxAmount ); 
+ 			var totalSubtotal = parseFloat( subTotal ) + parseFloat( taxAmount );
  			var discount = discountAmount / 100 ;
 
  			totalDiscount = totalSubtotal * discount;
@@ -201,7 +198,7 @@ jQuery(document).ready(function( $ ) {
  		$( ".calculate_invoice_tax " ).val( parseFloat( taxAmount ).toFixed(2) );
 
 		var grandTotal = (parseFloat( subTotal ) + parseFloat( taxAmount )) - parseFloat( totalDiscount );
-		
+
 		$( '.calculate_invoice_grandtotal').val( parseFloat( grandTotal ).toFixed(2) );
 	}
 

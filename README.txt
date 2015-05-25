@@ -7,7 +7,7 @@ Tags: invoice, e-downloads, ecommerce, e commerce, e-commerce, invoicing, billin
 Requires at least: 3.7
 Tested up to: 4.1
 
-Stable Tag: 1.0.1
+Stable Tag: 1.1.0
 
 License: GNU Version 2 or Any Later Version
 
@@ -67,7 +67,12 @@ Would you like to help translate the plugin into more languages? Let us know.
 6. Use templates
 
 == Changelog ==
+= 1.1.0: May 25, 2015 =
 
-= 1.0: April 20, 2015 =
+*ADD: Permalink options added
+*FIX: General fixes and spelling corrections
+
+
+= 1.0.1: April 20, 2015 =
 
 * First offical release!

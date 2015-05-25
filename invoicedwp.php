@@ -3,7 +3,7 @@
  * Plugin Name:     Invoiced WP
  * Plugin URI:      invoicedwp.com
  * Description:     The Most effective way to Get Paid by your clients.  Create it directly from your website.
- * Version:         1.0.1
+ * Version:         1.1.0
  * Author:          WP Ronin
  * Author URI:      wp-ronin.com
  * Text Domain:     iwp-txt
@@ -19,14 +19,14 @@
 // Exit if accessed directly
 if( !defined( 'ABSPATH' ) ) exit;
 
-if( !class_exists( 'IWP' ) ) {
+if( ! class_exists( 'IWP' ) ) {
 
     /**
      * Main IWP class
      *
      * @since       1.0.0
      */
-    class IWP { 
+    class IWP {
 
 
         /**
@@ -67,7 +67,7 @@ if( !class_exists( 'IWP' ) ) {
         private function setup_constants() {
             define( 'IWP_PATH', plugin_dir_path( __FILE__ ) );
             define( 'IWP_DIR', plugin_dir_path( __FILE__ ) );
-            define( 'IWP_VERSION', '1.0.1' );
+            define( 'IWP_VERSION', '1.1.0' );
             define( 'IWP_FILE', plugin_basename( __FILE__ ) );
             define( 'IWP_URL', plugins_url( '', IWP_FILE ) );
 
@@ -96,21 +96,11 @@ if( !class_exists( 'IWP' ) ) {
 
             require_once IWP_PATH . 'admin/functions.php';
 
-            
+
             require_once IWP_PATH . 'admin/admin-pages.php';
             require_once IWP_PATH . 'admin/form-callbacks.php';
             require_once IWP_PATH . 'admin/meta.php';
 
-            
-
-            /**
-             * @todo        The following files are not included in the boilerplate, but
-             *              the referenced locations are listed for the purpose of ensuring
-             *              path standardization in EDD extensions. Uncomment any that are
-             *              relevant to your extension, and remove the rest.
-             */
-            // require_once IWP_PATH . 'includes/shortcodes.php';
-            // require_once IWP_PATH . 'includes/widgets.php';
         }
 
 
@@ -121,47 +111,29 @@ if( !class_exists( 'IWP' ) ) {
          * @since       1.0.0
          * @return      void
          *
-         * @todo        The hooks listed in this section are a guideline, and
-         *              may or may not be relevant to your particular extension.
-         *              Please remove any unnecessary lines, and refer to the
-         *              WordPress codex and EDD documentation for additional
-         *              information on the included hooks.
-         *
-         *              This method should be used to add any filters or actions
-         *              that are necessary to the core of your extension only.
-         *              Hooks that are relevant to meta boxes, widgets and
-         *              the like can be placed in their respective files.
-         *
-         *              IMPORTANT! If you are releasing your extension as a
-         *              commercial extension in the EDD store, DO NOT remove
-         *              the license check!
          */
         private function hooks() {
-            // Register settings
-            //add_filter( 'edd_settings_extensions', array( $this, 'settings' ), 1 );
 
             add_action( 'init', 'iwp_setup_init' );
+            add_action( 'current_screen', 'iwp_conditonal_includes' );
             add_filter( 'template_include', 'include_invoice_template_function', 1 );
-            
-            if( is_admin() ) {    
+
+            if( is_admin() ) {
                 add_action( 'admin_menu', array( $this, 'iwp_setup_admin_menu' ), 1000, 0 );
                 add_action( 'add_meta_boxes', array( $this, 'iwp_setup_admin_meta' ) );
-                
+
                 add_filter( 'manage_invoicedwp_posts_columns', 'iwp_custom_columns' );
                 add_action( 'manage_invoicedwp_posts_custom_column', 'iwp_display_custom_columns' );
-
-                //add_filter( 'manage_invoicedwp_template_posts_columns', 'iwp_custom_columns' );
-                //add_action( 'manage_posts_custom_column', 'iwp_display_custom_columns' );
 
                 // AJAX Functions
                 add_action( 'wp_ajax_iwp_search_email', array( 'IWP_Ajax', 'search_email' ) );
                 add_action( 'wp_ajax_iwp_search_recipient', array( 'IWP_Ajax', 'search_recipient' ) );
                 add_action( 'wp_ajax_iwp_add_row', array( 'IWP_Ajax', 'add_row' ) );
                 add_action( 'wp_ajax_iwp_add_template_row', array( 'IWP_Ajax', 'add_template_row' ) );
-                add_action( 'wp_ajax_iwp_get_user_data', create_function( '', ' die(IWP_Ajax::get_user_data( iwp_sanitize( $_REQUEST["user_email"] ) ) );' ) );
+                add_action( 'wp_ajax_iwp_get_user_data', create_function( '', 'die(IWP_Ajax::get_user_data( iwp_sanitize( $_REQUEST["user_email"] ) ) );' ) );
             }
 
-            
+
         }
 
 
@@ -188,24 +160,24 @@ if( !class_exists( 'IWP' ) ) {
             public function iwp_setup_admin_meta() {
                 global $post;
                 // Meta Boxes for the Invoice Page
-                
+
                 $iwp = get_post_meta( $post->ID, '_invoicedwp', true );
-                if ( isset( $iwp['isQuote'] ) ) 
-                    if ( $iwp['isQuote'] != 1 ) 
+                if ( isset( $iwp['isQuote'] ) )
+                    if ( $iwp['isQuote'] != 1 )
                         add_meta_box( 'iwp_payment', __( 'Payment Information', 'iwp-txt' ), 'iwp_payment', 'invoicedwp', 'side' );
-                
-                
+
+
                 add_meta_box( 'iwp_client', __( 'Client Information', 'iwp-txt' ), 'iwp_client', 'invoicedwp', 'side', 'low' );
 
                 add_meta_box( 'iwp_details', __( 'Billing Details', 'iwp-txt' ), 'iwp_details', 'invoicedwp', 'normal', 'high' );
                 add_meta_box( 'iwp_notice', __( 'Invoice Notice', 'iwp-txt' ), 'iwp_notice', 'invoicedwp', 'normal', 'high' );
                 // Meta Boxes for the Line Item Page
-                add_meta_box( 'iwp_line_details', __( 'Line Item Details', 'iwp-txt' ), 'iwp_details', 'invoicedwp_template', 'normal', 'low' );                
+                add_meta_box( 'iwp_line_details', __( 'Line Item Details', 'iwp-txt' ), 'iwp_details', 'invoicedwp_template', 'normal', 'low' );
 
                 remove_meta_box( 'commentstatusdiv', 'invoicedwp_template' , 'normal' );
                 remove_meta_box( 'commentsdiv', 'invoicedwp_template' , 'normal' );
                 remove_meta_box( 'slugdiv', 'invoicedwp_template' , 'normal' );
-                
+
             }
 
         /**
@@ -229,10 +201,10 @@ if( !class_exists( 'IWP' ) ) {
             $mofile_global  = WP_LANG_DIR . '/invoicedwp/' . $mofile;
 
             if( file_exists( $mofile_global ) ) {
-                // Look in global /wp-content/languages/edd-plugin-name/ folder
+                // Look in global /wp-content/languages/invoicedwp/ folder
                 load_textdomain( 'invoicedwp', $mofile_global );
             } elseif( file_exists( $mofile_local ) ) {
-                // Look in local /wp-content/plugins/edd-plugin-name/languages/ folder
+                // Look in local /wp-content/plugins/invoicedwp/languages/ folder
                 load_textdomain( 'invoicedwp', $mofile_local );
             } else {
                 // Load the default language files
@@ -250,32 +222,33 @@ if( !class_exists( 'IWP' ) ) {
          * @return      array The modified EDD settings array
          */
         public function settings( $settings ) {
-           
+
         }
-        
-        
+
+
         /*
-         * Activation function fires when the plugin is activated.
-         *
-         * This function is fired when the activation hook is called by WordPress,
-         * 
-         */
-        public static function activation() {
+    	 * Activation function fires when the plugin is activated.
+    	 *
+    	 * This function is fired when the activation hook is called by WordPress,
+    	 *
+    	 */
+    	public static function activation() {
         /*Activation functions here*/
 
         }
 
         /**
-     * Register/Whitelist our settings on the settings page, allow extensions and other plugins to hook into this
-     * @return void
-     * @access public
-     */
-    public function iwp_register_settings() {
-        register_setting( 'iwp-options', 'iwp_options' ); 
+         * Register/Whitelist our settings on the settings page, allow extensions and other plugins to hook into this
+         * @return void
+         * @access public
+         */
+        public function iwp_register_settings() {
+            register_setting( 'iwp-options', 'iwp_options' );
 
-        do_action( 'iwp_register_additional_settings' );
+            do_action( 'iwp_register_additional_settings' );
+        }
+
     }
-
 }
 
 
@@ -294,15 +267,6 @@ if( !class_exists( 'IWP' ) ) {
 function IWP_load() {
         return IWP::instance();
 }
-
-/**
- * The activation hook is called outside of the singleton because WordPress doesn't
- * register the call from within the class hence, needs to be called outside and the
- * function also needs to be static.
- */
-register_activation_hook( __FILE__, array( 'IWP', 'activation' ) );
+add_action('plugins_loaded', 'IWP_load' );
 
 
-add_action( 'plugins_loaded', 'IWP_load' );
-
-} // End if class_exists check
